@@ -21,12 +21,31 @@ namespace DocSender
             var builder = new ConfigurationBuilder().AddJsonFile($"appsettings.json");
             var config = builder.Build();
             int duration = int.Parse(config["Timing:Duration"]);
-            DocumentsQueue docQue = new DocumentsQueue(
-                new ExternalSystemConnector(), 
-                new PrintProgress(), 
-                duration);
-            docQue.StartQueue();
-            // docQue.StopSending();
+
+            using (DocumentsQueue docQueue = new DocumentsQueue(
+                       new ExternalSystemConnector(),
+                       new PrintProgress(),
+                       duration))
+            {
+
+                await docQueue.StartQueue();
+
+                docQueue.Enqueue(new Document() { Id = 1, Title = "First doc", DocumentType = "AAA" });
+                Thread.Sleep(1000);
+                int i = 2;
+                for (; i < 20; i++)
+                {
+                    docQueue.Enqueue(new Document() { Id = i, Title = $"{i}th doc", DocumentType = "BBB" });
+                }
+                Thread.Sleep(3000);
+                for (; i < 34; i++)
+                {
+                    docQueue.Enqueue(new Document() { Id = i, Title = $"{i}th doc", DocumentType = "BBB" });
+                }
+                // Это надо, потому что предыдущая команда запускает процесс в бэкграунде
+                // и сразу завершается
+                Console.ReadKey();
+            }
         }
     }
 }

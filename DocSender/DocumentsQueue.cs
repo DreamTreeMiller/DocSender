@@ -30,58 +30,52 @@ namespace DocSender
         
         public async Task StartQueue()
         {
-            _progress.Report($"Is cancellation requested {_token.IsCancellationRequested}");
-            Task t = new Task(() => SenderAsync(_token));
-            t.Start();
-            await t;
+            await Task.Factory.StartNew(QueueSenderAsync,
+                _token,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default);
         }
 
-        // Options
-        // 1. Пришёл документ - сразу отправили 
         public void Enqueue(Document document)
         {
-            new Task(() => _mainQueue.Enqueue(document)).Start();
+            // Сделал именно Task.Run на случай,
+            // если через API будет поступать слишком много запросов
+            Task.Run(() => _mainQueue.Enqueue(document));
         }
 
-        private async Task SenderAsync(CancellationToken token)
+        private async Task QueueSenderAsync()
         {
-            _progress.Report("Sender Async started");
+            _progress.Report("Document queue sender started");
             Document nextDoc;
             do
             {
-                _progress.Report("Sender Async started do statement");
-                _progress.Report($"Is cancellation requested {token.IsCancellationRequested}");
-                _progress.Report($"main queue is empty: {_mainQueue.IsEmpty}");
                 while (!_mainQueue.IsEmpty)
                 {
                     List<Document> portionToSend = new(10);
-                    for (int i = 0;!_mainQueue.IsEmpty && i < 10; i++)
+                    int i;
+                    for (i = 0;!_mainQueue.IsEmpty && i < 10; i++)
                     {
                         _mainQueue.TryDequeue(out nextDoc);
                         portionToSend.Add(nextDoc);
                     }
-
                     try
                     {
-                        await _externalSystemConnector.SendDocuments(new ReadOnlyCollection<Document>(portionToSend), token);
+                        await _externalSystemConnector.SendDocuments(new ReadOnlyCollection<Document>(portionToSend), _token);
+                        _progress.Report($"{i} documents were sent.");
                     }
                     catch (Exception e)
                     {
-                        await DisposeAsync().ConfigureAwait(false);
-                        _progress.Report("Document sender was stopped. Document queue is empty.");
+                        _progress.Report("Document queue sender was stopped. Document queue is empty.");
                         return;
                     }
                 }
                 
                 try
                 {
-                    _progress.Report("SEnder Async entered try Task.Delay");
-                    await Task.Delay(_duration, token); 
-                    _progress.Report("SEnder Async after Task.Delay");
+                    await Task.Delay(_duration, _token); 
                 }
                 catch (Exception e)
                 {
-                    await DisposeAsync().ConfigureAwait(false);
                     _progress.Report("Document sender was stopped. Document queue is empty.");
                     return;
                 }
@@ -89,7 +83,7 @@ namespace DocSender
             } while (true);
         }
 
-        public void StopSending()
+        private void StopSending()
         {
             _cTS.Cancel();
             _cTS.Dispose();
@@ -101,6 +95,8 @@ namespace DocSender
             {
                 _mainQueue.Clear();
             }
+            StopSending();
+            _progress.Report("DisposeAsync was called");
             return ValueTask.CompletedTask;
         }
 
@@ -110,6 +106,8 @@ namespace DocSender
             {
                 _mainQueue.Clear();
             }
+            StopSending();
+            _progress.Report("Dispose was called");
         }
 
     }

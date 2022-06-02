@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace DocSender
@@ -33,7 +34,11 @@ namespace DocSender
                 throw new ArgumentException("Can't send more than 10 documents at once.", nameof(documents));
             }
 
-            Console.WriteLine($"Task SendDocuments received {documents.Count} docs to send");
+            foreach (var d in documents)
+            {
+                Console.WriteLine($"{d.Id} {d.Title} was sent");
+                
+            }
             // тестовая реализация, просто ничего не делаем 2 секунды
             await Task.Delay(TimeSpan.FromSeconds(2), cancellationToken); 
         }
