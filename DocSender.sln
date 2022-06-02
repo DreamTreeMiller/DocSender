@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp2", "ConsoleApp2\ConsoleApp2.csproj", "{A42D2284-D4F5-47B6-B20D-23A8EFD45E10}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocSender", "DocSender\DocSender.csproj", "{A89E61F0-7913-4D3C-92BE-BE0BA3707E01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQ", "CQ\CQ.csproj", "{B7BEC10A-05F7-4C30-B584-247C268F782C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A42D2284-D4F5-47B6-B20D-23A8EFD45E10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A42D2284-D4F5-47B6-B20D-23A8EFD45E10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A42D2284-D4F5-47B6-B20D-23A8EFD45E10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A42D2284-D4F5-47B6-B20D-23A8EFD45E10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A89E61F0-7913-4D3C-92BE-BE0BA3707E01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A89E61F0-7913-4D3C-92BE-BE0BA3707E01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A89E61F0-7913-4D3C-92BE-BE0BA3707E01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A89E61F0-7913-4D3C-92BE-BE0BA3707E01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7BEC10A-05F7-4C30-B584-247C268F782C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7BEC10A-05F7-4C30-B584-247C268F782C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7BEC10A-05F7-4C30-B584-247C268F782C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7BEC10A-05F7-4C30-B584-247C268F782C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
