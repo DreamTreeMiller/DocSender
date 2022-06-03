@@ -28,25 +28,25 @@ namespace DocSender
             _token = _cTS.Token;
         }
         
-        public async Task StartQueue()
-        {
-            await Task.Factory.StartNew(QueueSenderAsync,
-                _token,
-                TaskCreationOptions.LongRunning,
-                TaskScheduler.Default);
-        }
+        // public async Task StartQueue()
+        // {
+        //     await Task.Factory.StartNew(QueueSenderAsync,
+        //         _token,
+        //         TaskCreationOptions.LongRunning,
+        //         TaskScheduler.Default);
+        // }
 
         public void Enqueue(Document document)
         {
             // Сделал именно Task.Run на случай,
             // если через API будет поступать слишком много запросов
-            Task.Run(() => _mainQueue.Enqueue(document));
+            // Task.Run(() => _mainQueue.Enqueue(document));
+            _mainQueue.Enqueue(document);
         }
 
-        private async Task QueueSenderAsync()
+        public async Task QueueSenderAsync()
         {
             _progress.Report("Document queue sender started");
-            Document nextDoc;
             do
             {
                 while (!_mainQueue.IsEmpty)
@@ -55,7 +55,7 @@ namespace DocSender
                     int i;
                     for (i = 0;!_mainQueue.IsEmpty && i < 10; i++)
                     {
-                        _mainQueue.TryDequeue(out nextDoc);
+                        _mainQueue.TryDequeue(out Document nextDoc);
                         portionToSend.Add(nextDoc);
                     }
                     try
@@ -65,7 +65,9 @@ namespace DocSender
                     }
                     catch (Exception e)
                     {
-                        _progress.Report("Document queue sender was stopped. Document queue is empty.");
+                        Dispose();
+                        _progress.Report($"{e.Message}");
+                        _progress.Report("Document sending was unexpectedly stopped. Document queue is empty.");
                         return;
                     }
                 }
@@ -91,23 +93,23 @@ namespace DocSender
 
         public ValueTask DisposeAsync()
         {
+            _progress.Report("DisposeAsync was called");
             if (!_mainQueue.IsEmpty)
             {
                 _mainQueue.Clear();
             }
             StopSending();
-            _progress.Report("DisposeAsync was called");
             return ValueTask.CompletedTask;
         }
 
         public void Dispose()
         {
+            _progress.Report("Dispose was called");
             if (!_mainQueue.IsEmpty)
             {
                 _mainQueue.Clear();
             }
             StopSending();
-            _progress.Report("Dispose was called");
         }
 
     }

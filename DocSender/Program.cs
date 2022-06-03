@@ -27,8 +27,12 @@ namespace DocSender
                        new PrintProgress(),
                        duration))
             {
-
-                await docQueue.StartQueue();
+                // Запускаем сервис формирования пакетов по 10 документов
+                // и отправки их в ExternalSystemConnector.
+                // Он будет крутиться в отдельном потоке (точнее всякий раз в новых)
+                // Закончится, когда выйдем из using. 
+                
+                docQueue.QueueSenderAsync();
 
                 docQueue.Enqueue(new Document() { Id = 1, Title = "First doc", DocumentType = "AAA" });
                 Thread.Sleep(1000);
